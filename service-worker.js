@@ -1,6 +1,6 @@
 // Wound Care Assist — Service Worker
 // Bump this on every deploy so returning visitors pick up the new build.
-const CACHE_VERSION = 'wca-v1';
+const CACHE_VERSION = 'wca-v2';
 const CACHE_NAME = `wound-care-assist-${CACHE_VERSION}`;
 
 // Small "app shell" files only. index.html is intentionally NOT precached here —
@@ -38,9 +38,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first for the app itself (so users always get the latest build when
-// online), falling back to the cached copy when offline. Everything else uses
-// cache-first. Only GET requests are handled.
+// Cache-first for the app itself. index.html is ~93MB, so re-fetching it on
+// every launch (as network-first would) means the installed PWA "redownloads"
+// the whole app every time it's opened while online. Instead: serve the
+// cached copy immediately (instant offline-capable launch), and separately
+// refresh the cache in the background so the *next* launch picks up a new
+// build. Bump CACHE_VERSION when you deploy a change to force that refresh.
+// Only GET requests are handled.
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
@@ -51,15 +55,22 @@ self.addEventListener('fetch', (event) => {
 
   if (isNavigation) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
-          return response;
-        })
-        .catch(() =>
-          caches.match(request).then((cached) => cached || caches.match('./index.html'))
-        )
+      caches.match('./index.html').then((cached) => {
+        // Kick off a background refresh regardless, but don't make the user
+        // wait on it — this is what lets a new deploy (new CACHE_VERSION)
+        // eventually reach the device without re-downloading on every open.
+        const networkUpdate = fetch(request)
+          .then((response) => {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy)).catch(() => {});
+            return response;
+          })
+          .catch(() => null);
+
+        // Serve cache instantly if we have it; otherwise wait on the network
+        // (first-ever load, or a fresh cache after a version bump).
+        return cached || networkUpdate || caches.match('./index.html');
+      })
     );
     return;
   }
