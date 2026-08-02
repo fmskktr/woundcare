@@ -2,7 +2,7 @@
 
 ## License & AI-use notice
 
-**© 2026 [LLY / LLY]. All Rights Reserved.**
+**© 2026 [LLY / Woundcare assist]. All Rights Reserved.**
 
 This repository's source code (`index.html`, `service-worker.js`,
 `manifest.webmanifest`, icon assets, and any embedded models/weights) is
