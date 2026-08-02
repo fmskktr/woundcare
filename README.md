@@ -1,4 +1,4 @@
-# Wound Care Assist — PWA deployment package
+# Wound Care Assist — AI Tool to analyse wound photo and give modern dressing guide
 
 ## License & AI-use notice
 
