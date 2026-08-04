@@ -1,6 +1,6 @@
 // Wound Care Assist — Service Worker
 // Bump this on every deploy so returning visitors pick up the new build.
-const CACHE_VERSION = 'wca-v4';
+const CACHE_VERSION = 'wca-v5';
 const CACHE_NAME = `wound-care-assist-${CACHE_VERSION}`;
 
 // Small "app shell" files only. index.html is intentionally NOT precached here —
