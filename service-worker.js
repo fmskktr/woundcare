@@ -1,6 +1,6 @@
 // Wound Care Assist — Service Worker
 // Bump this on every deploy so returning visitors pick up the new build.
-const CACHE_VERSION = 'wca-v2';
+const CACHE_VERSION = 'wca-v4';
 const CACHE_NAME = `wound-care-assist-${CACHE_VERSION}`;
 
 // Small "app shell" files only. index.html is intentionally NOT precached here —
@@ -38,7 +38,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Cache-first for the app itself. index.html is ~93MB, so re-fetching it on
+// Cache-first for the app itself. index.html is ~34MB, so re-fetching it on
 // every launch (as network-first would) means the installed PWA "redownloads"
 // the whole app every time it's opened while online. Instead: serve the
 // cached copy immediately (instant offline-capable launch), and separately
